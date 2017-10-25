@@ -3,12 +3,8 @@
     <loading :loading="!(sliderImages.length || songSheet.length)">
       <scroll ref="scroller" class="scroll-wrapper" :data="songSheet">
         <div class="main-content">
-          <slider v-if="sliderImages.length">
-            <div class="img-wrapper" v-for="(item, index) in sliderImages" :key="index">
-              <a :href="item.linkUrl">
-                <img :src="item.picUrl" alt="" @load="imgLoaded">
-              </a>
-            </div>
+          <slider v-if="sliderImages.length" :sliderImages="sliderImages" @imgLoaded="imgLoaded">
+
           </slider>
           <h2>推荐热门歌单</h2>
           <ul class="song-sheet-list" v-if="songSheet.length">
@@ -50,6 +46,7 @@
         let self = this
         getSliderData().then(response => {
           if (response.code === 0) {
+            console.log(response)
             self.sliderImages = response.data.slider
           }
         }).catch(error => {
@@ -93,15 +90,6 @@
       overflow: hidden
       .main-content
         background-color: $color-background
-        .img-wrapper
-          display: inline-block
-          vertical-align: middle
-          a
-            display: block
-            width: 100%
-            img
-              width: 100%
-              vertical-align: middle
 
         h2
           color: $color-theme

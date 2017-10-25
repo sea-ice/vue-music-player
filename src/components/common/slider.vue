@@ -1,7 +1,11 @@
 <template>
   <div class="slider-wrapper" ref="slider">
     <div class="slider-group" ref="sliderGroup">
-      <slot></slot>
+      <div class="img-wrapper" v-for="(item, index) in sliderImages" :key="index">
+        <a :href="item.linkUrl">
+          <img :src="item.picUrl" alt="" @load="imgLoaded">
+        </a>
+      </div>
     </div>
     <div class="dots-wrapper">
       <span class="dot" v-for="(dot, index) in dots" :class="{ 'active-dot': currentIndex === index }"></span>
@@ -32,15 +36,20 @@
       interval: {
         type: Number,
         default: 2000
+      },
+      sliderImages: {
+        type: Array,
+        default () {
+          return []
+        }
       }
     },
     mounted () {
-      let self = this
-      this._initSlider()
+      this.imgCount = 0
       window.addEventListener('resize', () => {
         if (!this.sliderGroup) return
-        self._setSliderWidth(true)
-        self.scroll.refresh()
+        this._setSliderWidth(true)
+        this.scroll.refresh()
       })
     },
     methods: {
@@ -83,11 +92,17 @@
         if (this.autoPlay) this._play()
       },
       _play () {
-        let self = this
         let nextIndex = this.currentIndex + (this.loop ? 2 : 1)
         this.timer = setTimeout(() => {
-          self.scroll.goToPage(nextIndex, 0, 400)
+          this.scroll.goToPage(nextIndex, 0, 400)
         }, this.interval)
+      },
+      imgLoaded () {
+        this.$emit('imgLoaded')
+        // 需要等到所有轮播图片都加载完毕才初始化此组件
+        if (++this.imgCount === this.sliderImages.length) {
+          this._initSlider()
+        }
       }
     }
   }
@@ -121,4 +136,13 @@
           margin-left: 10px
         &.active-dot
           width: 12px
+  .img-wrapper
+    display: inline-block
+    vertical-align: middle
+    a
+      display: block
+      width: 100%
+      img
+        width: 100%
+        vertical-align: middle
 </style>
